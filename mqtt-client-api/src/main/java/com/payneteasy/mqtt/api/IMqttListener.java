@@ -11,4 +11,6 @@ public interface IMqttListener {
     void onConnectError();
 
     void onDisconnected();
+
+    void onMessageSent(int aMessageId);
 }

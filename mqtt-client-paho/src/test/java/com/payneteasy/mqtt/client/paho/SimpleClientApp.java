@@ -20,6 +20,7 @@ public class SimpleClientApp {
     private static final Logger LOG = LoggerFactory.getLogger( SimpleClientApp.class );
 
     public static void main(String[] args) throws InterruptedException {
+
         MessageQueueArrayImpl queue = new MessageQueueArrayImpl(100);
         MqttClientOptions options = MqttClientOptions.builder()
                 .address        ( new InetSocketAddress("192.168.1.70", 1883))
@@ -29,15 +30,15 @@ public class SimpleClientApp {
                 .pullTimeout    ( ofSeconds(50)       )
                 .queueReader    ( queue               )
                 .clientId       ( "client-03-macbook" )
-                .topics         ( singletonList(MqttTopic.builder().topicName("zigbee2mqtt/#").build()))
+                .topics         ( singletonList(MqttTopic.builder().topicName("zigbee2mqtt/spider_temp").build()))
                 .listener       ( new SimpleListener())
                 .build();
 
         IMqttClient client = new MqttClientFactoryHivemq().startClient(options);
 
         queue.addMessage(MqttMessage.builder()
-                        .topic("zigbee2mqtt/laundry_switch/set")
-                        .payload("{\"state\" : \"OFF\"}".getBytes(UTF_8))
+                        .topic("zigbee2mqtt/spider_switch/set")
+                        .payload("{\"state\": \"ON\"}".getBytes(UTF_8))
                 .build());
 
         LOG.debug("Sleeping 240 seconds...");

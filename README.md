@@ -3,6 +3,16 @@
 ## Feature
 
 * This client fixed a problem with the original paho library which sometimes stops to receive messages froma a broker
+          
+## Maven
+
+```xml
+<dependency>
+    <groupId>com.payneteasy.mqtt-client</groupId>
+    <artifactId>mqtt-client-paho</artifactId>
+    <version>1.0-SNAPSHOT</version>
+</dependency>
+```
 
 ## Example
 

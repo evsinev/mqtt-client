@@ -44,4 +44,9 @@ public class SimpleListener implements IMqttListener  {
     public void onDisconnected() {
         LOG.info("onDisconnected()");
     }
+
+    @Override
+    public void onMessageSent(int aMessageId) {
+        LOG.info("onMessageSent({})", aMessageId);
+    }
 }

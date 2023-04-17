@@ -4,9 +4,7 @@ import com.payneteasy.mqtt.api.IMqttListener;
 import com.payneteasy.mqtt.api.MqttClientOptions;
 import com.payneteasy.mqtt.api.MqttMessage;
 import org.eclipse.paho.mqttv5.common.MqttException;
-import org.eclipse.paho.mqttv5.common.packet.MqttPingResp;
-import org.eclipse.paho.mqttv5.common.packet.MqttPublish;
-import org.eclipse.paho.mqttv5.common.packet.MqttWireMessage;
+import org.eclipse.paho.mqttv5.common.packet.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +14,7 @@ import java.io.InputStream;
 import java.net.Socket;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.eclipse.paho.mqttv5.common.packet.MqttWireMessage.MESSAGE_TYPE_PINGRESP;
+import static org.eclipse.paho.mqttv5.common.packet.MqttWireMessage.*;
 
 public class ConnectAndReadThread extends Thread {
 
@@ -107,9 +105,26 @@ public class ConnectAndReadThread extends Thread {
                 processPing();
                 break;
 
+            case MESSAGE_TYPE_DISCONNECT:
+                processDisconnect(aHeader, aBytes);
+                break;
+            case MESSAGE_TYPE_PUBACK:
+                processPubAck(aHeader, aBytes);
+                break;
+
             default:
                 throw new IllegalStateException("Unknown message type " + aHeader.getType());
         }
+    }
+
+    private void processPubAck(MqttMessageReader.FixedHeader aHeader, byte[] aBytes) throws MqttException, IOException {
+        MqttPubAck pubAck = new MqttPubAck(aBytes);
+        options.getListener().onMessageSent(pubAck.getMessageId());
+    }
+
+    private void processDisconnect(MqttMessageReader.FixedHeader aHeader, byte[] aBytes) throws MqttException, IOException {
+        MqttDisconnect disconnect = new MqttDisconnect(aBytes);
+        throw new IllegalStateException("Disconnected " + disconnect.getReturnCode());
     }
 
     private void processPing() {
@@ -132,7 +147,7 @@ public class ConnectAndReadThread extends Thread {
 
     private Socket connect() throws IOException {
         Socket socket = new Socket();
-        socket.setSoTimeout((int) options.getConnectTimeout().toMillis());
+        socket.setSoTimeout((int) options.getReadTimeout().toMillis());
         socket.connect(options.getAddress(), (int) options.getConnectTimeout().toMillis());
         return socket;
     }

@@ -59,4 +59,13 @@ public class SafeMqttListener implements IMqttListener {
             LOG.error("Cannot onDisconnected()", e);
         }
     }
+
+    @Override
+    public void onMessageSent(int aMessageId) {
+        try {
+            delegate.onMessageSent(aMessageId);
+        } catch (Exception e) {
+            LOG.error("Cannot onMessageSent({})", aMessageId, e);
+        }
+    }
 }
